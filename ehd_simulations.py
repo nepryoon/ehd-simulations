@@ -16,6 +16,8 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
+from matplotlib.lines import Line2D
 
 np.random.seed(42)
 os.makedirs("figures", exist_ok=True)
@@ -56,8 +58,7 @@ def generate_fig1():
     fig, ax = plt.subplots(figsize=(6.5, 4))
     for n in range(N):
         ax.plot(ks, trajectories[n], color=NAVY, alpha=0.12, lw=0.7)
-    ax.fill_between(ks, p10, p90, color=NAVY, alpha=0.18,
-                    label="10th–90th percentile")
+    ax.fill_between(ks, p10, p90, color=NAVY, alpha=0.18)
     ax.plot(ks, mean_tr, color=NAVY, lw=2.0, label="Mean trajectory")
     ax.axhline(mu_star, color=GREEN, lw=1.6, ls="--",
                label=r"True mean $\mu^*(a)=0.35$")
@@ -66,7 +67,21 @@ def generate_fig1():
     ax.set_xlabel(r"Visit count $k$")
     ax.set_ylabel(r"Mean estimate $\mu_{\theta_k}(a)$")
     ax.set_title("Convergence of recalibration rule (Proposition 4)")
-    ax.legend(fontsize=9, frameon=False)
+    legend_elements = [
+        Line2D([0], [0], color=NAVY, lw=2.0,
+               label="Mean trajectory"),
+        Patch(facecolor=NAVY, alpha=0.3,
+              label="10th–90th percentile"),
+        Line2D([0], [0], color=GREEN, lw=1.6,
+               ls="--",
+               label=r"True mean $\mu^*(a)=0.35$"),
+        Line2D([0], [0], color=RED, lw=1.2,
+               ls="--", alpha=0.6,
+               label=r"Initial estimate $\mu_{\theta_0}=0.60$"),
+    ]
+    ax.legend(handles=legend_elements,
+              fontsize=9, frameon=False,
+              loc="upper right")
     fig.tight_layout()
     fig.savefig("figures/fig_convergence.pdf", dpi=300)
     fig.savefig("figures/fig_convergence.png", dpi=300)
@@ -98,18 +113,24 @@ def generate_fig2():
             label=r"EHD $\Delta V_{\mathrm{prag}}=0$")
     ax.plot(delta_sigma2, delta_kl, color=PLUM, lw=2.2,
             label=r"EFE $\Delta\mathrm{KL}$")
-    ax.annotate("EHD indifferent", xy=(0.06, 0.003),
-                fontsize=9, color=NAVY)
-    ax.annotate("EFE penalises higher variance",
-                xy=(0.04, delta_kl[40] + 0.003),
-                fontsize=9, color=PLUM)
+    ax.text(0.003,  0.008,
+            "EHD: indifferent to variance",
+            fontsize=9, color=NAVY,
+            va='bottom')
+    ax.text(0.003, delta_kl[2] - 0.015,
+            "EFE: penalises higher variance",
+            fontsize=9, color=PLUM,
+            va='top')
     ax.set_xlabel(
         r"Variance gap $\sigma^2(b)-\sigma^2(a)$")
     ax.set_ylabel(r"Score difference $(a)-(b)$")
     ax.set_title(
         "Ranking divergence: EHD vs single-step EFE\n"
         "(Proposition 5, mechanism ii)")
-    ax.legend(fontsize=9, frameon=False)
+    ax.legend(fontsize=9, frameon=True,
+              loc="lower left",
+              framealpha=0.9,
+              edgecolor="#e0e0e0")
     fig.tight_layout()
     fig.savefig("figures/fig_ranking_divergence.pdf", dpi=300)
     fig.savefig("figures/fig_ranking_divergence.png", dpi=300)
@@ -162,13 +183,22 @@ def generate_fig3():
                label=r"$\theta_{\mathrm{ext}}=0.45$")
     ax.fill_between(t, 0, 1, where=(W_ext < theta_ext),
                     color=RED, alpha=0.10, label="Trigger active")
-    ax.annotate("", xy=(3, 0.25), xytext=(3, 0.17),
-                arrowprops=dict(arrowstyle="->",
-                                color=GREEN, lw=1.6))
-    ax.text(3.2, 0.16, "Action selected", fontsize=8, color=GREEN)
+    ax.annotate("Action\nselected",
+                xy=(3, W_ext[3]),
+                xytext=(4.5, 0.20),
+                fontsize=8, color=GREEN,
+                arrowprops=dict(
+                    arrowstyle="->",
+                    color=GREEN, lw=1.4,
+                    connectionstyle="arc3,rad=0.2"))
     ax.set_ylabel("Welfare signal")
     ax.set_ylim(0.10, 0.85)
-    ax.legend(fontsize=8, frameon=False, ncol=2)
+    ax.legend(fontsize=8, frameon=True,
+              loc="upper left",
+              framealpha=0.92,
+              edgecolor="#e0e0e0",
+              ncol=2,
+              bbox_to_anchor=(0.0, 1.0))
 
     ax = axes[1]
     ax.plot(t, x2, color=NAVY, lw=1.8,
