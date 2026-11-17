@@ -2,7 +2,7 @@
 Simulation code for:
   Can LLM Agents Care About the World?
   Exocentric Homeostatic Deliberation (EHD)
-Author : Luca Lillo, University of Liverpool, 2026
+Author : Luca Lillo (MSc Artificial Intelligence student, University of Liverpool), 2026
 """
 
 import os
